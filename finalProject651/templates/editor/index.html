@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <title>Rango</title>
+        <link rel="stylesheet" href="{% static "node_modules/codemirror/lib/codemirror.css" %}">
+    </head>
+
+    <body>
+        <h1>Welcome to the Editor</h1>
+
+        <textarea class="codemirror-textarea" id="input"></textarea>
+        <h2><strong>{{ title }}</strong></h2>
+        <textarea rows="30" cols="100" id="output"></textarea>
+
+        <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
+        <script src="{% static "node_modules/codemirror/lib/codemirror.js" %}"></script>
+        <script src="{% static "js/index.js" %}"></script>
+
+    </body>
+
+</html>

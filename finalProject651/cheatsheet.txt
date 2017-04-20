@@ -1,0 +1,20 @@
+finalProject651: Project folder
+__init__.py:这是一个空的脚本,用来告诉Python编译器这个目录是一个Python包.
+settings.py:用来存储Django项目设置的文件.
+urls.py:用来存储项目里的URL模式.
+wsgi.py:用来帮助你运行开发服务,同时可以帮助部署你的生产环境.
+
+
+Editor: App
+__init__.py,这是一个空的脚本,用来告诉Python编译器这个目录是一个Python包.
+models.py,一个存储你的应用中数据模型的地方 - 在这里描述数据的实体和关系.
+tests.py,存储你应用的测试代码.
+views.py,在这里处理用户请求和响应.
+admin.py,在这里你可以向Django注册你的模型,它会为你创建Django的管理界面.
+
+路径
+
+我们需要使用{% load static %}标签来使用静态媒体.
+所以我们才可以用{% static "rango.jpg" %在模板里调用static文件.Django模板标签用{ }来表示.在这个例子里我们用static标签,它将会把STATIC_URL和rango.jpg连接起来
+
+ No 'Access-Control-Allow-Origin' header is present on the requested resource
