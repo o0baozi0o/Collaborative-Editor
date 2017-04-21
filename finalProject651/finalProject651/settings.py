@@ -86,10 +86,10 @@ WSGI_APPLICATION = 'finalProject651.wsgi.application'
 DATABASES = {
         'default': {
                  'ENGINE': 'django.db.backends.mysql',
-                 'NAME': 'BAOZI01',
-                 'USER': 'root',
+                 'NAME': 'editor_db',
+                 'USER': 'baozi',
                  'PASSWORD': '19930813',
-                 'HOST': 'localhost',
+                 'HOST': '155.41.84.169',
                  'PORT': '3306'
         }
 
@@ -123,3 +123,5 @@ STATIC_PATH = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
+
+CORS_ORIGIN_ALLOW_ALL = True

@@ -18,3 +18,5 @@ admin.py,在这里你可以向Django注册你的模型,它会为你创建Django�
 所以我们才可以用{% static "rango.jpg" %在模板里调用static文件.Django模板标签用{ }来表示.在这个例子里我们用static标签,它将会把STATIC_URL和rango.jpg连接起来
 
  No 'Access-Control-Allow-Origin' header is present on the requested resource
+
+ XMLHttpRequest cannot load http://155.41.84.169:8000/add_string/. No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://155.41.100.200:8000' is therefore not allowed access.
