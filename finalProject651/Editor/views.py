@@ -5,10 +5,22 @@ from Editor import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import render
 from django.http import JsonResponse
+import ast
+from Editor import load
 
 # 在views.py文件里每个视图对应一个单独的函数.在这个例子中我们只创建了一个index视图.
-serverVersion = 0
+# serverVersion = 0
+# op = []
+
+# load op, server version from MySQL database when server start up
+
+for entry in models.Ver.objects.all():
+    entry.delete()
+
 op = []
+serverVersion = 0
+# op, serverVersion = load.loadFromSQL()
+# client_Sn = {}
 
 # 每个视图至少带一个参数 - 一个在django.http模块的HttpRequest对象.
 # 每个视图都要返回一个HttpResponse对象.本例中这个HttpResponse对象把一个字符串当做参数传递给客户端.
@@ -22,7 +34,9 @@ def index(request):
 @csrf_exempt
 def addString(request):
     global serverVersion
+    global op
     print("[Server]HTTP Request Type: " + request.method)
+    print(op)
     if request.method == 'POST':
         ip = get_client_ip(request)
         print("[Server]From Client:" + ip)
@@ -31,8 +45,8 @@ def addString(request):
         if data['type'] == "fetchfile":
             print("[Server]: Receiving fetchfile")
             try:
-                file_value = models.File.objects.get(Line=data['fileName'])
-                return JsonResponse({"type":"Init", "content": file_value.String,"version":serverVersion})
+                #file_value = models.File.objects.get(Line=data['fileName'])
+                return JsonResponse({"type":"Init", 'currentOp':op,"version":serverVersion})
             except ObjectDoesNotExist:
                 print('no file')
                 return JsonResponse({"type":"NoFile", "content":"No File Failed"})
@@ -44,24 +58,64 @@ def addString(request):
             elif serverVersion > clientVersion:
                 return JsonResponse({"type": "Append", "newOp": op[clientVersion:serverVersion], "version": serverVersion})
             else:
-                return JsonResponse({"type": "Rejected", "content": "Unexpected Failed in type : HeartBeat"})
+                # Possible situation:
+                #   Primary server down
+                #   This server(backup) take over
+                #   client version is higher than server version(0)
+                #   retrieve op and server version from database and check client version again.
+                op, serverVersion = loadFromSQL()
+                addString(request)
+                # if serverVersion == clientVersion:
+                #     return JsonResponse({"type": "Heartbeat", "newOp": ""})
+                # elif serverVersion > clientVersion:
+                #     return JsonResponse({"type": "Append", "newOp": op[clientVersion:serverVersion], "version": serverVersion})
+                # else:
+                #     return JsonResponse({"type": "Rejected", "content": "Unexpected Failed in type : HeartBeat"})
 
         elif data['type'] == 'newOp':
             print("[Server]: Receiving newOp")
             clientVersion = data['version']
+            # if data['sn'] > client_Sn['ip']:
+            #     client_Sn['ip'] +=1
             if serverVersion == clientVersion:
+                print(str(data['Op']))
+                appendLog(str(data['Op']))
                 op.append(data['Op'])
                 serverVersion += 1
+                # file_value = models.File.objects.get(Line=data['fileName'])
+                # file_value.String = data['file']
+                # file_value.save()
                 return JsonResponse({"type": "Updated", "version": serverVersion})
             elif serverVersion > clientVersion:
                 return JsonResponse({"type": "Append", "newOp": op[clientVersion:serverVersion], "version": serverVersion})
             else:
-                return JsonResponse({"type":"Rejected","content": "Unexpected Failed in type : newOp"})
+                # Possible situation:
+                #   Primary server down
+                #   This server(backup) take over
+                #   client version is higher than server version(0)
+                #   retrieve op and server version from database and check client version again.
+                op, serverVersion = loadFromSQL()
+                addString(request)
+                # if serverVersion == clientVersion:
+                #     return JsonResponse({"type": "Heartbeat", "newOp": ""})
+                # elif serverVersion > clientVersion:
+                #     return JsonResponse(
+                #         {"type": "Append", "newOp": op[clientVersion:serverVersion], "version": serverVersion})
+                # else:
+                #     return JsonResponse({"type": "Rejected", "content": "Unexpected Failed in type : newOp"})
+            # else:
+            #     return JsonResponse({"type": "Updated", "version": serverVersion})
         else:
             print('no type!')
             return JsonResponse({"content":"Unexpected Failed"})
     else:
         return HttpResponse("[Server Reply]NONONO")
+
+
+def appendLog(op):
+    global serverVersion
+    data = models.Ver(Op = op)
+    data.save()
 
 
 def get_client_ip(request):
@@ -72,9 +126,23 @@ def get_client_ip(request):
         ip = request.META.get('REMOTE_ADDR')
     return ip
 
+
+def loadFromSQL():
+    global serverVersion
+    global op
+    for entry in models.Ver.objects.all():
+        op_str = entry.Op
+        op_list = ast.literal_eval(op_str)
+        op.append(op_list)
+        serverVersion += 1
+
+
 def dealData(data):
     data_str = ""
     for item in data:
         if item['type'] == "ins":
             data_str += item['text'][0]
     return data_str
+
+
+

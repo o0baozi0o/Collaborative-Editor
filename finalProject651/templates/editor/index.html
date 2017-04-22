@@ -5,26 +5,100 @@
 		<meta charset="utf-8"/>
 		<link rel=stylesheet href="{% static "public/codemirror/doc/docs.css" %}">
 		<link rel=stylesheet href="{% static "public/codemirror/lib/codemirror.css" %}">
-		<link rel=stylesheet href="{% static "public/codemirror/theme/monokai.css" %}">
+		<link rel=stylesheet href="{% static "public/codemirror/theme/dracula.css" %}">
 		<style type="text/css">
 		  .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee; line-height: 1.3; height: 500px}
 		  .CodeMirror-linenumbers { padding: 0 8px; }
+          .myFont{font-size: 25px}
+          .myMargin{margin-top: 25px}
 		</style>
+
+        <title>Collaborator Editor</title>
+
+        <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/grids-responsive-min.css">
+        <link rel="stylesheet" href="{% static "node_modules/pure-layout-blog/css/layouts/blog.css" %}">
+
 	</head>
 
+
 	<body>
-		<div id=nav>
-			<h1>Collaborative Editor</h1>
-            <img id=logo src="{% static "public/codemirror/doc/logo.png" %}">
-		</div>
-		<article>
-		<div id=workarea></div>
-		<div id=showarea></div>
-		</article>
+        <div id="layout" class="pure-g">
+            <div class="sidebar pure-u-1 pure-u-md-1-4">
+                <div class="header">
+                    <h1 class="brand-title">Collaborative Editor</h1>
+                    <h2 class="brand-tagline">Creating a peaceful world for Vimers, Emacers and Sublimers</h2>
+                    <nav class="nav">
+                        <ul class="nav-list">
+                            <li class="nav-item">
+                                <a class="pure-button" href="https://github.com/o0baozi0o/Collaborative-Editor">Unlimited Code Works</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="pure-button" href="https://github.com/o0baozi0o/Collaborative-Editor">Github</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+
+            <div class="content pure-u-1 pure-u-md-3-4 myMargin">
+                <div style="display: inline">
+                    <p class="brand-title myFont" style="display: inline">Choose your favorite Editor here </p>
+                    <div class="pure-menu pure-menu-horizontal" style="display: inline">
+                        <ul class="pure-menu-list">
+                            <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                                <a id="menuLink1" class="pure-menu-link ">Editor</a>
+                                <ul class="pure-menu-children">
+                                    <li class="pure-menu-item" id="vim"><a class="pure-menu-link" id="vim">Vim</a></li>
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="emacs">Emacs</a></li>
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="sublime">Sublime</a></li>
+                                </ul>
+                            </li>
+                            <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                                <a id="menuLink1" class="pure-menu-link">Language</a>
+                                <ul class="pure-menu-children">
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="python">Python</a></li>
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="emacs">Java</a></li>
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="sublime">Javascript</a></li>
+                                </ul>
+                            </li>
+                            <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                                <a id="menuLink1" class="pure-menu-link">Theme</a>
+                                <ul class="pure-menu-children">
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="vim">Default</a></li>
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="emacs">Monoka</a></li>
+                                    <li class="pure-menu-item"><a class="pure-menu-link" id="sublime">notepad</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <br>
+                <div id="workarea">
+                </div>
+                <div class="footer">
+                    <div class="pure-menu pure-menu-horizontal">
+                        <ul>
+                            <li class="pure-menu-item"><a href="http://purecss.io/" class="pure-menu-link">About</a></li>
+                            <li class="pure-menu-item"><a href="http://twitter.com/yuilibrary/" class="pure-menu-link">Github</a></li>
+                            <li class="pure-menu-item"><a href="http://github.com/yahoo/pure/" class="pure-menu-link">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
         <script src="{% static "public/codemirror/lib/codemirror.js" %}"></script>
         <script src="{% static "public/codemirror/mode/javascript/javascript.js"%}"></script>
+        <script src="{% static "public/codemirror/mode/python/python.js"%}"></script>
+        <script src="{% static "node_modules/codemirror/keymap/vim.js" %}"></script>
+        <script src="{% static "node_modules/codemirror/keymap/sublime.js" %}"></script>
+        <script src="{% static "node_modules/codemirror/keymap/emacs.js" %}"></script>
+        <script src="{% static "node_modules/codemirror/addon/edit/matchbrackets.js" %}"></script>
+        <script src="{% static "node_modules/codemirror/addon/edit/closebrackets.js" %}"></script>
 
         <script src="{% static "js/index.js" %}"></script>
 

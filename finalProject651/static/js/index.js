@@ -4,7 +4,6 @@
 
 function applyOp(op, editor){
 	for(var i=0;i<op.length;++i){
-		console.log(op[i]);
 		if(op[i].type === 'ins'){
 			var str = "";
 			for(var j=0;j<op[i].text.length;++j){
@@ -21,10 +20,20 @@ function applyOp(op, editor){
 }
 
 function beforeOrEqual(Pos1, Pos2){
-	return Pos1.line <= Pos2.line && Pos1.ch <= Pos2.ch;
+	if(Pos1.line < Pos2.line){
+		return true;
+	}else if(Pos1.line === Pos2.line){
+		return Pos1.ch <= Pos2.ch;
+	}
+	return false;
 }
 function before(Pos1, Pos2){
-	return Pos1.line <= Pos2.line && Pos1.ch < Pos2.ch;
+	if(Pos1.line < Pos2.line){
+		return true;
+	}else if(Pos1.line === Pos2.line){
+		return Pos1.ch < Pos2.ch;
+	}
+	return false;
 }
 function equal(Pos1, Pos2){
 	return Pos1.line === Pos2.line && Pos1.ch === Pos2.ch;
@@ -60,7 +69,7 @@ function deleteBefore(op, Pos){
 		if(tFrom.line === tTo.line){
 			rPos.ch -= (tTo.ch - tFrom.ch);
 		}else{
-			rPos.ch -= tTo.ch;
+			rPos.ch = rPos.ch - tTo.ch + tFrom.ch;
 		}
 	}
 	rPos.line -= tTo.line - tFrom.line;
@@ -68,7 +77,7 @@ function deleteBefore(op, Pos){
 }
 
 function transformII(opNew,op){
-	if(before(op.from,opNew.from)){
+	if(before(op.from, opNew.from)){
 		opNew.from = insertBefore(op,opNew.from);
 	}else{
 		op.from = insertBefore(opNew,op.from);
@@ -123,8 +132,14 @@ function transformDD(opNew,op){
 		opNew.to = deleteBefore(op, opNew.to);
 	}
 }
+function showIns(str,op){
+	console.log(str+' line:'+op.from.line+' ch:'+op.from.ch);
+}
+function showDel(str,op){
+	console.log(str+' from line:'+op.from.line+' ch:'+op.from.ch+' to line:'+op.to.line+' ch:'+op.to.ch);
+}
 
-function transform(op, notCommit){
+function transformOne(op, notCommit){
 	for(var i = 0; i<notCommit.length; ++i){
 		for(var n = 0; n<op.length ; ++n){
 			if(notCommit[i].type === 'ins'){
@@ -164,39 +179,59 @@ function transform(op, notCommit){
 	}
 }
 
+function updateOp(newOp,notCommit,editor){
+	for(var i=0; i<newOp.length; ++i){
+		var list = [newOp[i]];
+		transformOne(list, notCommit);
+		applyOp(list,editor);
+	}
+}
+
+
 // ---------------------------------------------------
 // Set editor1 and editor2: 初始化设置
 // ---------------------------------------------------
 var clientVersion = -1;
 var notCommit = [];
 var commit = [];
+var keyMapStr = "sublime";
 var editor = CodeMirror(document.getElementById('workarea'), {
-			value: "Type something!",
+			value: "print(\"Hello, world\")",
 			lineNumbers: true,
-			mode: "javascript",
+			keyMap: keyMapStr,
+			mode: "python",
 			matchBrackets: true,
+			autoCloseBrackets: true,
 			showCursorWhenSelecting: true,
-			theme: "monokai",
-			tabSize: 2
+			theme: "dracula",
+			tabSize: 4
 });
 
+//var notCommitLock = false;
 function chMade(e,c){
 	if( c.origin === 'setValue'){
 		return;
 	}
-	if(c.from.line !== c.to.line || c.from.ch !== c.to.ch){
+	//while (notCommitLock === false){
+	    notCommitLock = true;
+        if(c.from.line !== c.to.line || c.from.ch !== c.to.ch){
 		notCommit.push({type:'del', from:c.from, to:c.to});
-	}
-	if(c.text.length !== 1 ||c.text[0] !== '') {
-		notCommit.push({type: 'ins', from: c.from, text: c.text});
-	}
+	    }
+        if(c.text.length !== 1 ||c.text[0] !== '') {
+            notCommit.push({type: 'ins', from: c.from, text: c.text});
+        }
+        notCommitLock = false;
+        //break;
+    //}
+
 }
 
 
-var serverUrl = ["http://155.41.100.200:8000", "http://155.41.84.169:8000"];
+var serverUrl = ["http://155.41.106.212:8000","http://155.41.106.212:8000" ];
 var server = serverUrl[0];
 var errorCount = 0;
 var kickOut = 0;
+
 
 
 // ---------------------------------------------------
@@ -205,6 +240,20 @@ var kickOut = 0;
 
 $(document).ready(function () {
 	// console.log(notCommit);
+	$("#vim").click(function () {
+			editor.setOption("keyMap", "vim");
+			// console.log($("#menuLink1").val());
+			$("#menuLink1").innerHTML = "vim";
+		}
+	);
+	$("#emacs").click(function () {
+			editor.setOption("keyMap", "emacs");
+		}
+	);
+	$("#sublime").click(function () {
+			editor.setOption("keyMap", "sublime");
+		}
+	);
     sendString();
 });
 
@@ -212,35 +261,43 @@ var flag = false;
 
 function sendString() {
     // console.log("[Swtich Master]connected to server: " + server);
-	if(notCommit.length !== 0){
-		console.log(notCommit);
-	}
+    // if(notCommit.length !== 0){
+	 //    console.log("first print notCommit");
+		// console.log(notCommit);
+    // }
+	var pre_notCommit_len = notCommit.length;
+	// if(notCommitLock === false) {
+	// 	notCommitLock = true;
+        var message;
+        var type;
+        if(clientVersion === -1){
+            type = "fetchfile";
+            console.log("[Nothing Commit]: " + notCommit.length + typeof(notCommit));
+            message = JSON.stringify({type:type,fileName:'1'});
+        }else if(notCommit.length === 0){
+            type = "heartBeat";
+            // console.log("[Nothing Commit]: " + notCommit.length + typeof(notCommit));
+            message = JSON.stringify({type:type, version: clientVersion});
+        }else if (notCommit.length !== 0){
+            type = "newOp";
+            console.log("[Something Commit]: " + notCommit.length + typeof(notCommit));
+            message = JSON.stringify({type:type,fileName:'1',Op:notCommit,version: clientVersion,file:editor.getValue()});
+        }
 
-	var message;
-	var type;
-	if(clientVersion === -1){
-		type = "fetchfile";
-		console.log("[Nothing Commit]: " + notCommit.length + typeof(notCommit));
-		message = JSON.stringify({type:type,fileName:'1'});
-	}else if(notCommit.length === 0){
-		type = "heartBeat";
-		// console.log("[Nothing Commit]: " + notCommit.length + typeof(notCommit));
-		message = JSON.stringify({type:type, version: clientVersion});
-	}else if (notCommit.length !== 0){
-		type = "newOp";
-		console.log("[Something Commit]: " + notCommit.length + typeof(notCommit));
-		message = JSON.stringify({type:type,fileName:'1',Op:notCommit,version: clientVersion});
-	}
-	if(flag == false) {
-		flag = true;
 		$.ajax({
 			type: "POST",
 			url: server + "/add_string/",
 			data: {msg: message},
+			async: false,
 			success: function (data) {
 				//console.log(data.content);
 				if (type === "fetchfile") {
-					editor.setValue(data.content);
+				    data.currentOp.forEach(function (entry) {
+							// transform(entry, notCommit);
+							// applyOp(entry, editor);
+							updateOp(entry,notCommit,editor)
+						});
+					// editor.setValue(data.content);
 					clientVersion = data.version; // update clientVersion to server Version
 					editor.on('change', chMade);
 				} else if (type === "heartBeat") {
@@ -252,8 +309,9 @@ function sendString() {
 						console.log("[Hearbeat From Server] serverVersion" + data.version);
 
 						data.newOp.forEach(function (entry) {
-							transform(entry, notCommit);
-							applyOp(entry, editor);
+							// transform(entry, notCommit);
+							// applyOp(entry, editor);
+							updateOp(entry,notCommit,editor)
 						});
 
 						// applyOp(data.newOp, editor);
@@ -269,13 +327,24 @@ function sendString() {
 						console.log("[AppendEntry From Server] Server is updated, your request is successful, update client version");
 						clientVersion++;
 						commit.push(notCommit);
-						notCommit = [];
+                        // console.log("second print notCommit");
+                        // console.log(notCommit);
+                        // console.log(notCommit_len)
+                        // console.log(notCommit.length)
+						if (notCommit.length > pre_notCommit_len){
+						    notCommit = notCommit.splice(pre_notCommit_len);
+                            // console.log("third print");
+                            // console.log(notCommit);
+                        } else {
+						    notCommit = [];
+                        }
 
 					} else if (data.type === "Append") {
 						console.log("[AppendEntry From Server] You are fall behind, Server request append old version");
 						data.newOp.forEach(function (entry) {
-							transform(entry, notCommit);
-							applyOp(entry, editor);
+							// transform(entry, notCommit);
+							// applyOp(entry, editor);
+                            updateOp(entry,notCommit,editor)
 						});
 						// applyOp(data.newOp, editor);
 						clientVersion = data.version;
@@ -292,7 +361,7 @@ function sendString() {
 				setTimeout('sendString()', 500);
 			},
 			error: function (request, status, error) {
-				console.log("[Connection Error]Connect Error to Server" + server);
+				console.log("[Connection Error]Connect Error to Server " + server);
 				errorCount += 1;
 				if (errorCount < 4) {
 					setTimeout('sendString()', 1000);
@@ -308,8 +377,8 @@ function sendString() {
 				}
 			}
 		});
-		flag = false;
-	}
+		//notCommitLock = false;
+	//}
 
 }
 
