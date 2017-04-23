@@ -31,7 +31,7 @@ SECRET_KEY = 'byq0$*rui&nuwju**d)96z+qa_@%c2v*ea&tr^td$35g^v$5!#'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["155.41.100.200"]
+ALLOWED_HOSTS = ["155.41.106.212"]
 
 
 # Application definition
@@ -86,10 +86,10 @@ WSGI_APPLICATION = 'finalProject651.wsgi.application'
 DATABASES = {
         'default': {
                  'ENGINE': 'django.db.backends.mysql',
-                 'NAME': 'BAOZI01',
-                 'USER': 'root',
+                 'NAME': 'editor_db',
+                 'USER': 'baozi',
                  'PASSWORD': '19930813',
-                 'HOST': 'localhost',
+                 'HOST': '155.41.30.196',
                  'PORT': '3306'
         }
 
@@ -123,3 +123,5 @@ STATIC_PATH = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = (
     STATIC_PATH,
 )
+
+CORS_ORIGIN_ALLOW_ALL = True

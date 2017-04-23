@@ -1,22 +1,227 @@
-<!DOCTYPE html>
+<!doctype html>
 {% load static %}
-<html>
-    <head>
-        <title>Rango</title>
-        <link rel="stylesheet" href="{% static "node_modules/codemirror/lib/codemirror.css" %}">
-    </head>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-    <body>
-        <h1>Welcome to the Editor</h1>
+	<title>Collaborative Editor</title>
 
-        <textarea class="codemirror-textarea" id="input"></textarea>
-        <h2><strong>{{ title }}</strong></h2>
-        <textarea rows="30" cols="100" id="output"></textarea>
+	<meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+    <meta name="viewport" content="width=device-width" />
 
-        <script src="{% static "js/jquery-3.2.1.min.js" %}"></script>
-        <script src="{% static "node_modules/codemirror/lib/codemirror.js" %}"></script>
-        <script src="{% static "js/index.js" %}"></script>
+    <!-- Bootstrap core CSS     -->
+    <link href="{% static "public/assets/css/bootstrap.min.css" %}" rel="stylesheet" />
 
-    </body>
+    <!--  Material Dashboard CSS    -->
+    <link href="{% static "public/assets/css/material-dashboard.css" %}" rel="stylesheet" />
+
+    <!--  CSS for Demo Purpose, don't include it in your project     -->
+    <link href="{% static "public/assets/css/demo.css" %}" rel="stylesheet" />
+
+    <!--     Fonts and icons     -->
+    {#    <link href="{% static "view/css/font-awesome.min.css" %}" rel="stylesheet">#}
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,700,300|Material+Icons' rel='stylesheet' type='text/css'>
+
+	<!--CodeMirror-->
+    <link href="{% static "public/codemirror/doc/docs.css" %}" rel="stylesheet" />
+    <link href="{% static "public/codemirror/lib/codemirror.css" %}" rel="stylesheet" />
+    <link href="{% static "public/codemirror/theme/dracula.css" %}" rel="stylesheet" />
+    <link href="{% static "public/codemirror/theme/monokai.css" %}" rel="stylesheet" />
+    <link href="{% static "public/codemirror/theme/twilight.css" %}" rel="stylesheet" />
+    <link href="{% static "public/codemirror/addon/dialog/dialog.css" %}" rel="stylesheet" />
+
+    <style type="text/css">
+        .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee; line-height: 1.3; height: 600px}
+        .CodeMirror-linenumbers { padding: 0 8px; }
+        .myFont{font-size: 25px}
+    </style>
+
+</head>
+
+<body>
+
+	<div class="wrapper">
+
+        <div class="sidebar" data-color="orange" data-image="{% static "public/assets/img/sidebar-1.jpg" %}">
+			<!--
+		        Tip 1: You can change the color of the sidebar using: data-color="purple | blue | green | orange | red"
+
+		        Tip 2: you can also add an image using data-image tag
+		    -->
+
+			<div class="logo">
+				<a href="" class="simple-text">
+					Vmac
+				</a >
+			</div>
+
+	    	<div class="sidebar-wrapper">
+	            <ul class="nav">
+	                <li class="active">
+	                    <a data-toggle="collapse" href="#editor" id="editorChoice">
+	                        <i class="material-icons">dashboard</i>
+	                        <p>Editor</p>
+	                    </a>
+                        <div class="collapse" id="editor">
+                            <ul class="nav">
+                                <li id="sublime">
+                                    <a>Sublime</a>
+                                </li>
+                                <li id="vim">
+                                    <a>Vim</a>
+                                </li>
+                                <li id="emacs">
+                                    <a>Emacs</a>
+                                </li>
+                            </ul>
+                        </div>
+	                </li>
+	                <li>
+                        <a data-toggle="collapse" href="#language">
+                            <i class="material-icons">language</i>
+                            <p>Language</p>
+                        </a>
+                        <div class="collapse" id="language">
+                            <ul class="nav">
+                                <li id="go">
+                                    <a>Go</a>
+                                </li>
+                                <li id="python">
+                                    <a>Python</a>
+                                </li>
+                                <li id="javascript">
+                                    <a>JavaScript</a>
+                                </li>
+                            </ul>
+                        </div>
+	                </li>
+	                <li>
+                    <li>
+                        <a data-toggle="collapse" href="#theme">
+                            <i class="material-icons">language</i>
+                            <p>Theme</p>
+                        </a>
+                        <div class="collapse" id="theme" >
+                            <ul class="nav">
+                                <li id="dracula">
+                                    <a>Dracula</a>
+                                </li>
+                                <li id="monokai">
+                                    <a>Monokai</a>
+                                </li>
+                                <li id="light">
+                                    <a>Twilight</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
+					<li class="active-pro">
+	                    <a href="">
+	                        <i class="material-icons">face</i>
+	                        <p>Baoxiang Yang</p>
+                            <i class="material-icons">face</i>
+                            <p>Haotian Wu</p>
+                            <i class="material-icons">event_seat</i>
+                            <p>Haoyu Zhang</p>
+	                    </a>
+	                </li>
+	            </ul>
+	    	</div>
+	    </div>
+
+	    <div class="main-panel">
+			<nav class="navbar navbar-transparent navbar-absolute">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle" data-toggle="collapse">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+                        <a class="navbar-brand">Create a peaceful world for Vimers, Emacers and Sublimers</a>
+					</div>
+				</div>
+			</nav>
+
+			<div class="content">
+				<div class="container-fluid">
+                    <div id="workarea"></div>
+				</div>
+                <footer class="footer">
+                    <div class="container-fluid">
+                        <nav class="pull-left">
+                            <ul>
+                                <li>
+                                    <a href="#">
+                                        Home
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        Github
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        About
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        Blog
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                        <p class="copyright pull-right">
+                            &copy; <script>document.write(new Date().getFullYear())</script> <a href="http://www.creative-tim.com">Support By CodeMirror, Google Map, Tim</a> Pieceful world
+                        </p>
+                    </div>
+                </footer>
+			</div>
+
+		</div>
+	</div>
+
+</body>
+
+	<!--   Core JS Files   -->
+    <script src="{% static "public/assets/js/jquery-3.1.0.min.js" %}" type="text/javascript"></script>
+    <script src="{% static "public/assets/js/bootstrap.min.js" %}" type="text/javascript"></script>
+    <script src="{% static "public/assets/js/material.min.js" %}" type="text/javascript"></script>
+
+	<!--  Charts Plugin -->
+    <script src="{% static "public/assets/js/chartist.min.js" %}" type="text/javascript"></script>
+
+    <!--  Notifications Plugin    -->
+    <script src="{% static "public/assets/js/bootstrap-notify.js" %}" type="text/javascript"></script>
+
+	<!-- Material Dashboard javascript methods -->
+    <script src="{% static "public/assets/js/material-dashboard.js" %}" type="text/javascript"></script>
+
+	<!-- Material Dashboard DEMO methods, don't include it in your project! -->
+    <script src="{% static "public/assets/js/demo.js" %}"></script>
+
+	<!--Codemirror-->
+    <script src="{% static "public/codemirror/lib/codemirror.js" %}"></script>
+    <script src="{% static "public/codemirror/mode/javascript/javascript.js" %}"></script>
+    <script src="{% static "public/codemirror/mode/go/go.js" %}"></script>
+    <script src="{% static "public/codemirror/mode/python/python.js" %}"></script>
+    <script src="{% static "public/codemirror/keymap/vim.js" %}"></script>
+    <script src="{% static "public/codemirror/keymap/sublime.js" %}"></script>
+    <script src="{% static "public/codemirror/keymap/emacs.js" %}"></script>
+    <script src="{% static "public/codemirror/addon/edit/closebrackets.js" %}"></script>
+    <script src="{% static "public/codemirror/addon/edit/matchbrackets.js" %}"></script>
+    <script src="{% static "public/codemirror/addon/edit/matchtags.js" %}"></script>
+    <script src="{% static "public/codemirror/addon/dialog/dialog.js" %}"></script>
+
+    <script src="{% static "view/operationalTransform.js" %}"></script>
+    <script src="{% static "view/model.js" %}"></script>
+    <script src="{% static "view/index.js" %}"></script>
 
 </html>

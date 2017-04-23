@@ -17,4 +17,18 @@ admin.py,在这里你可以向Django注册你的模型,它会为你创建Django�
 我们需要使用{% load static %}标签来使用静态媒体.
 所以我们才可以用{% static "rango.jpg" %在模板里调用static文件.Django模板标签用{ }来表示.在这个例子里我们用static标签,它将会把STATIC_URL和rango.jpg连接起来
 
- No 'Access-Control-Allow-Origin' header is present on the requested resource
+
+Todo List:
+
+架构重构
+
+static:
+这里存了server端的静态资源，目前逻辑全部都在index.js里 我们需要把他重构
+
+We could use Node.js to replace the traditional js to make a require model to make this looks better
+Restructure index.js
+
+
+Templates:
+server’s index, This should be the layout
+We need to figure out what is the different between templates and static in django
